@@ -1,35 +1,24 @@
 <?php
-$keyword = strtolower($_GET['keyword'] ?? '');
+$keyword = $_GET['keyword'] ?? '';
 $year = $_GET['year'] ?? '';
 
-$results = [];
-if (($handle = fopen("final_dataset.csv", "r")) !== FALSE) {
-    $header = fgetcsv($handle); // Ambil header
-    while (($row = fgetcsv($handle)) !== FALSE) {
-        $data = array_combine($header, $row);
-        $judul = strtolower($data['judul'] ?? '');
-        $penulis = strtolower($data['penulis'] ?? '');
-        $tahun = $data['tahun'] ?? '';
+$params = http_build_query([
+  'keyword' => $keyword,
+  'year' => $year
+]);
 
-        if (
-            ($keyword === '' || strpos($judul, $keyword) !== false || strpos($penulis, $keyword) !== false) &&
-            ($year === '' || $tahun === $year)
-        ) {
-            $results[] = $data;
-        }
-    }
-    fclose($handle);
-}
+$url = 'http://localhost:5000/search?' . $params;
+$response = file_get_contents($url);
+$results = json_decode($response, true);
 
-// Tampilkan hasil
-if (count($results) > 0) {
-    foreach ($results as $row) {
-        echo "<div class='border-b border-gray-300 py-2'>";
-        echo "<p class='font-semibold text-blue-700'>" . htmlspecialchars($row['judul']) . "</p>";
-        echo "<p class='text-sm text-gray-600'>" . htmlspecialchars($row['penulis']) . " - " . htmlspecialchars($row['tahun']) . "</p>";
-        echo "</div>";
-    }
+if ($results) {
+  foreach ($results as $item) {
+    echo "<div class='p-4 bg-gray-100 rounded-lg border'>";
+    echo "<p class='font-semibold text-blue-700 mb-1'>" . htmlspecialchars($item['input']) . "</p>";
+    echo "<p class='text-sm text-gray-700'>" . htmlspecialchars($item['output']) . "</p>";
+    echo "</div>";
+  }
 } else {
-    echo "<p class='text-gray-500'>Tidak ada hasil yang cocok.</p>";
+  echo "<p class='text-gray-600'>Tidak ada hasil ditemukan.</p>";
 }
 ?>
