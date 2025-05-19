@@ -1,0 +1,18 @@
+untuk bisa menjalankan website ini, lakukan langkah dibawah
+
+- install aplikasi Xampp
+- jika sudah, letakkan folder search-engine-jurnal ini di folder xampp/htdocs
+- buka VS codenya
+- buka terminal pada vscode
+    - jika menggunakan Windows, gunakan CTRL dan ~
+    - jika menggunakan macOS, gunakan CMD dan J 
+- pastikan versi python itu 3.11 atau diatasnya, cara ceknya itu seperi ini  
+(python --version)
+    - jika belom ke versi tersebut, download dulu di https://www.python.org/downloads/ 
+- kemudian, install semua module yang dibutuhkan. caranya, tinggal ketikkan saja di terminal seperti ini  
+(pip install -r requirements.txt) 
+- setelah semuanya terinstall, ketikkan app.py pada terminal, sehingga muncul tulisan "Running on http://127.0.0.1:5000"
+- buka Xampp, lalu aktifkan apache. jangan lupa untuk melihat port aktifnya dimana
+- buka google, lalu ketikkan http://localhost/search-engine-jurnal/index.html
+- jika error, coba dicek kembali port pada apache yang berjalan itu berapa
+    - jika port yang berjalan itu 8080, tinggal ganti saja jadi http://localhost:8080/search-engine-jurnal/index.html
