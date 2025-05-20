@@ -4,10 +4,10 @@ from nltk.tokenize import word_tokenize
 import nltk
 import pandas as pd
 import string
+import json
 
 nltk.download('punkt')
 
-# Inisialisasi Flask
 app = Flask(__name__)
 
 # Load dataset
@@ -19,7 +19,7 @@ documents = df['Input'].astype(str).tolist()
 tokenized_corpus = [word_tokenize(doc.lower().translate(translator)) for doc in documents]
 bm25 = BM25Okapi(tokenized_corpus)
 
-# Autocomplete words dari korpus
+# Buat list term unik untuk autocomplete
 unique_terms = sorted(set(word for doc in tokenized_corpus for word in doc))
 
 @app.route('/search', methods=['GET'])
@@ -35,15 +35,25 @@ def search():
     ranked_indices = sorted(range(len(scores)), key=lambda i: scores[i], reverse=True)
 
     results = []
-    for idx in ranked_indices[:10]:
+    for idx in ranked_indices:
         row = df.iloc[idx]
-        if year and str(year) not in row['Input']:
+        try:
+            parsed_output = json.loads(row['Final_Output'])
+        except:
+            parsed_output = {}
+
+        # Filter tahun jika diisi
+        if year and str(parsed_output.get('year', '')).strip() != str(year).strip():
             continue
+
         results.append({
             'input': row['Input'],
             'output': row['Final_Output'],
             'score': float(scores[idx])
         })
+
+        if len(results) == 10:
+            break
 
     return jsonify(results)
 
@@ -53,7 +63,8 @@ def autocomplete():
     if not keyword:
         return jsonify([])
 
-    suggestions = [term for term in unique_terms if keyword in term][:10]
+    # Gunakan startswith agar lebih relevan
+    suggestions = [term for term in unique_terms if term.startswith(keyword)][:10]
     return jsonify(suggestions)
 
 if __name__ == '__main__':
