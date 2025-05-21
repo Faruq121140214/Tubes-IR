@@ -4,20 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Search Engine Jurnal</title>
+
+  <!-- Import Tailwind CSS dan jQuery -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body class="bg-gray-100 min-h-screen p-6 font-sans">
 
+  <!-- Container utama -->
   <div class="max-w-3xl mx-auto bg-white shadow-xl rounded-xl p-8 relative">
     <h1 class="text-3xl font-bold mb-6 text-center text-blue-600">Pencarian Referensi Jurnal</h1>
 
-    <!-- Input Search -->
+    <!-- Input Pencarian -->
     <div class="mb-4 relative">
       <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Judul Jurnal</label>
       <input type="text" id="search" placeholder="Ketik judul jurnal..."
         class="block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
         autocomplete="off">
+        
+      <!-- List untuk hasil autocomplete -->
       <ul id="suggestion-list"
           class="absolute left-0 right-0 bg-white border border-gray-300 mt-1 rounded-md shadow-md z-10 hidden">
         <!-- Suggestion items diisi via JS -->
@@ -39,60 +44,61 @@
 
     <!-- Tombol Pencarian -->
     <div class="text-center mt-4">
-    <button id="btn-search"
-      class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition">
-      Cari Jurnal
-    </button>
-  </div>
-  
+      <button id="btn-search"
+        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold shadow-md transition">
+        Cari Jurnal
+      </button>
+    </div>
 
-    <!-- Hasil -->
+    <!-- Hasil pencarian akan muncul di sini -->
     <div id="results" class="mt-6 space-y-4">
-      <!-- Hasil pencarian akan ditampilkan di sini -->
+      <!-- Diisi via JavaScript setelah pencarian -->
     </div>
   </div>
 
+  <!-- JavaScript utama -->
   <script>
     $(document).ready(function () {
-      // Autocomplete saat user mengetik
+
+      // === Autocomplete saat user mengetik ===
       $('#search').on('keyup', function () {
         let query = $(this).val();
         if (query.length > 1) {
           $.ajax({
-            url: 'autocomplete.php',
+            url: 'autocomplete.php', // Mengirim keyword ke autocomplete.php
             method: 'GET',
             data: { keyword: query },
             success: function (data) {
-              $('#suggestion-list').html(data).removeClass('hidden');
+              $('#suggestion-list').html(data).removeClass('hidden'); // Tampilkan hasil suggestion
             }
           });
         } else {
-          $('#suggestion-list').html('').addClass('hidden');
+          $('#suggestion-list').html('').addClass('hidden'); // Sembunyikan jika input kosong
         }
       });
 
-      // Saat suggestion diklik
+      // === Saat item autocomplete diklik ===
       $(document).on('click', '#suggestion-list li', function () {
-        $('#search').val($(this).text());
+        $('#search').val($(this).text()); // Isi input dengan pilihan
         $('#suggestion-list').html('').addClass('hidden');
-        triggerSearch();
+        triggerSearch(); // Langsung jalankan pencarian
       });
 
-      // Saat tahun berubah
+      // === Saat filter tahun berubah ===
       $('#filter-year').on('change', function () {
-        triggerSearch();
+        triggerSearch(); // Jalankan pencarian ulang dengan filter baru
       });
 
-      // Fungsi pencarian
+      // === Fungsi utama pencarian ke backend ===
       function triggerSearch() {
         const keyword = $('#search').val();
         const year = $('#filter-year').val();
         $.ajax({
-          url: 'filter.php',
+          url: 'filter.php', // Kirim request ke filter.php
           method: 'GET',
           data: { keyword: keyword, year: year },
           success: function (data) {
-            $('#results').html(data);
+            $('#results').html(data); // Tampilkan hasilnya
           }
         });
       }
